@@ -21,7 +21,7 @@
                 ?>
         <?php endif; ?>
 
-            <form action="./login/login.php" method="POST">
+            <form action="./auth/login.php" method="POST">
                 <div class="form-outline mb-4">
                     <input type="email" id="email" name="email" class="form-control" required />
                     <label class="form-label" for="email">Email</label>

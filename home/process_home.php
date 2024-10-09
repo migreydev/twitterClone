@@ -19,6 +19,7 @@ $date = date('Y-m-d');
 $sql = "INSERT INTO publications (id, userId, text, createDate) VALUES ('$idPublicacion', '$idUser', '$tweet', '$date')";
 $registro = mysqli_query($connect, $sql);
 $_SESSION['add'] = 'The tweet have been added ';
+header("Location: home.php");
 
 
 ?>
