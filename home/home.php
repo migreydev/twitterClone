@@ -5,12 +5,12 @@ session_start();
 $connect = connection();
 $idUser = $_SESSION['usuario']["id"];
 
+//devuelve los datos de publicacion junto con el username
 $sql = "SELECT *,
             (SELECT username
             FROM social_network.users 
             WHERE users.id = publications.userId) AS username
-        FROM social_network.publications
-        WHERE userId = '2'";
+        FROM social_network.publications";
 $query = mysqli_query($connect, $sql);
 ?>
 
@@ -27,7 +27,7 @@ $query = mysqli_query($connect, $sql);
     <div class="container-fluid">
         <a class="navbar-brand text-dark" href="../home/home.php"><b>Twitter Clone</b></a>
         <a class="nav-link text-dark me-3" href="../home/home.php">Home</a>
-        <a class="nav-link text-dark" href="../user/view.php">My Profile</a>
+        <a class="nav-link text-dark" href="../user/myProfile.php">My Profile</a>
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
         </button>
@@ -89,7 +89,10 @@ $query = mysqli_query($connect, $sql);
                     <div class="alert alert-info">
                     <?php while ($row = mysqli_fetch_array($query)): ?>
                     <div class="border border-dark p-3 mb-3">
-                        <h4 class="text-center"> <a href="../user/view.php"> <?= $row['username'] ?></a></h4>
+                        <form action="../user/view.php" method=POST>
+                            <input type="hidden" name="userIdForm" value="<?= $row['userId'] ?>">
+                            <h4 class="text-center"> <button type="submit" class="btn btn-link"> <?= $row['username'] ?></a></h4>
+                        </form>
                         <p class="text-center"><?= $row['text'] ?></p>
                         <small class="text-center"><?= $row['createDate'] ?></small>
                     </div>

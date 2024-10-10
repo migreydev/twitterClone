@@ -4,30 +4,23 @@ session_start();
 
 $connect = connection();
 
-$userIdForm = $_POST['userIdForm'];
+$userId = $_SESSION['usuario']['id'];
 
 $sql = "SELECT *,
             (SELECT username
             FROM social_network.users 
             WHERE users.id = publications.userId) AS username
         FROM social_network.publications
-        WHERE userId = '$userIdForm'";
+        WHERE userId = '$userId'";
 
 $query = mysqli_query($connect, $sql);
 
 
 $sqlUser = "SELECT *
             FROM social_network.users
-            WHERE id = '$userIdForm'";
+            WHERE id = '$userId'";
 
 $otherQuery = mysqli_query($connect, $sqlUser);
-
-
-$sqlQuery = "SELECT *
-            FROM social_network.users
-            WHERE id = '$userIdForm'";
-
-$UserMysqliQuery = mysqli_query($connect, $sqlQuery);          
 
 ?>
 
@@ -82,22 +75,6 @@ $UserMysqliQuery = mysqli_query($connect, $sqlQuery);
                         }
                         ?>
                     </div>
-                    <?php
-
-                    if(isset($_SESSION["usuario"])) {
-
-                        $userUsername = $_SESSION["usuario"]['username'];
-                        $UserQuery = mysqli_fetch_array($UserMysqliQuery);
-    
-                        if ($userUsername !== $UserQuery['username']) { ?>
-
-                            <form action="./following.php" method="POST">
-                                <button class="btn btn-outline-primary" type="submit" name="buttonFollow">Follow</button>
-                            </form>
-                        <?php 
-                        } 
-                    }    
-                    ?>
                 </div>
             </div>
         </div>
