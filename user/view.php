@@ -120,6 +120,9 @@ $queryFollow = mysqli_query($connect, $sqlFollow);
                         }
                     }    
                     ?>
+
+                    <p>Following:  </p>
+                    <p>Followers: </p>
                 </div>
             </div>
         </div>
