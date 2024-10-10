@@ -9,9 +9,10 @@ $userID = $_SESSION['usuario']['id'];
 $userIdFollow = $_POST['idUserFollow'];
 
 
-$sql = "INSERT INTO follows (users_id, userToFollowId) VALUES ('$userID', '$userIdFollow')";
+$sql = "DELETE FROM follows WHERE users_id = $userID AND userToFollowId = $userIdFollow";
 $query = mysqli_query($connect, $sql);
 
 header("Location: ../home/home.php");
+
 
 ?>

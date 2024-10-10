@@ -75,6 +75,9 @@ $otherQuery = mysqli_query($connect, $sqlUser);
                         }
                         ?>
                     </div>
+                    <form action="./edit.php" method="POST">
+                        <button class="btn btn-warning">Edit</button>
+                    </form>
                 </div>
             </div>
         </div>

@@ -3,8 +3,11 @@ require_once "../connection/connection.php";
 session_start();
 
 $connect = connection();
+$userIdForm = '';
 
-$userIdForm = $_POST['userIdForm'];
+if(isset($_POST['userIdForm'])){
+    $userIdForm = $_POST['userIdForm'];
+}
 
 $sql = "SELECT *,
             (SELECT username
@@ -22,13 +25,14 @@ $sqlUser = "SELECT *
 
 $otherQuery = mysqli_query($connect, $sqlUser);
 
+$userId = $_SESSION['usuario']['id'];
 
-$sqlQuery = "SELECT *
-            FROM social_network.users
-            WHERE id = '$userIdForm'";
+$sqlFollow = "SELECT * 
+            FROM social_network.follows
+            WHERE users_id = $userId";
 
-$UserMysqliQuery = mysqli_query($connect, $sqlQuery);          
-
+$queryFollow = mysqli_query($connect, $sqlFollow);
+        
 ?>
 
 <!DOCTYPE html>
@@ -66,7 +70,11 @@ $UserMysqliQuery = mysqli_query($connect, $sqlQuery);
                     <div class="alert alert-info">
                         <?php 
                         if(isset($_SESSION["usuario"])) {
-                            if ($otherRow = mysqli_fetch_array($otherQuery)): ?>
+
+                            mysqli_data_seek($otherQuery, 0);
+                            $otherRow = mysqli_fetch_array($otherQuery);
+                            
+                            if ($otherRow): ?>
                                 <?php $username = $otherRow['username'];
                                     $email = $otherRow['email'];
                                     $description = $otherRow['description'];
@@ -74,7 +82,7 @@ $UserMysqliQuery = mysqli_query($connect, $sqlQuery);
                                 ?> <b> <?php echo "Username: $username"; ?> </b><br>
                                 <b> <?php echo "Email: $email"; ?> </b><br>
                                 <b> <?php echo "Description: $description"; ?> </b><br>
-                                <?php endif ?>
+                            <?php endif ?>
                         <?php
                         
                         }else {
@@ -87,15 +95,29 @@ $UserMysqliQuery = mysqli_query($connect, $sqlQuery);
                     if(isset($_SESSION["usuario"])) {
 
                         $userUsername = $_SESSION["usuario"]['username'];
-                        $UserQuery = mysqli_fetch_array($UserMysqliQuery);
-    
-                        if ($userUsername !== $UserQuery['username']) { ?>
+                        mysqli_data_seek($otherQuery, 0);
+                        $UserQuery = mysqli_fetch_array($otherQuery);
 
-                            <form action="./following.php" method="POST">
-                                <button class="btn btn-outline-primary" type="submit" name="buttonFollow">Follow</button>
-                            </form>
-                        <?php 
-                        } 
+                        if ($UserQuery) { 
+                            if ($userUsername !== $UserQuery['username'] && mysqli_num_rows($queryFollow) !== 1) { ?>
+
+                                <form action="../user/following.php" method="POST">
+                                <input type="hidden" name="idUserFollow" value="<?= $UserQuery['id'] ?>">
+                                    <button class="btn btn-outline-primary" type="submit" name="buttonFollow">Follow</button>
+                                </form>
+                            <?php 
+                            }
+
+                            if ($userUsername !== $UserQuery['username'] && mysqli_num_rows($queryFollow) === 1) { ?>
+
+                                <form action="../user/unfollow.php" method="POST">
+                                <input type="hidden" name="idUserFollow" value="<?= $UserQuery['id'] ?>">
+                                    <button class="btn btn-outline-danger" type="submit" name="buttonFollow">Unfollow</button>
+                                </form>
+
+                                <?php 
+                            }
+                        }
                     }    
                     ?>
                 </div>
@@ -107,7 +129,10 @@ $UserMysqliQuery = mysqli_query($connect, $sqlQuery);
                 <div class="card-body">
                     <h2 class="card-title text-center">Twitter Board</h2>
                     <div class="alert alert-info">
-                    <?php while ($row = mysqli_fetch_array($query)): ?>
+                    <?php 
+                    mysqli_data_seek($query, 0);
+                    
+                    while ($row = mysqli_fetch_array($query)): ?>
                     <div class="border border-dark p-3 mb-3">
                         <form action="../user/view.php" method=POST>
                             <input type="hidden" name="userIdForm" value="<?= $row['userId'] ?>">
