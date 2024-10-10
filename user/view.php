@@ -3,15 +3,36 @@ require_once "../connection/connection.php";
 session_start();
 
 $connect = connection();
-$idUser = $_SESSION['usuario']["id"];
+$userIdForm = '';
 
-//devuelve los datos de publicacion junto con el username
+if(isset($_POST['userIdForm'])){
+    $userIdForm = $_POST['userIdForm'];
+}
+
 $sql = "SELECT *,
             (SELECT username
             FROM social_network.users 
             WHERE users.id = publications.userId) AS username
-        FROM social_network.publications";
+        FROM social_network.publications
+        WHERE userId = '$userIdForm'";
+
 $query = mysqli_query($connect, $sql);
+
+
+$sqlUser = "SELECT *
+            FROM social_network.users
+            WHERE id = '$userIdForm'";
+
+$otherQuery = mysqli_query($connect, $sqlUser);
+
+$userId = $_SESSION['usuario']['id'];
+
+$sqlFollow = "SELECT * 
+            FROM social_network.follows
+            WHERE users_id = $userId";
+
+$queryFollow = mysqli_query($connect, $sqlFollow);
+        
 ?>
 
 <!DOCTYPE html>
@@ -47,37 +68,58 @@ $query = mysqli_query($connect, $sql);
                 <div class="card-body">
                     <h2 class="card-title text-center">User Information</h2>
                     <div class="alert alert-info">
-                        <?php
-                        if (isset($_SESSION["usuario"])) {
-                            $username = $_SESSION["usuario"]["username"];
-                            $email = $_SESSION["usuario"]["email"];
-                            $description = $_SESSION["usuario"]["description"];
+                        <?php 
+                        if(isset($_SESSION["usuario"])) {
 
-                            ?> <b> <?php echo "Username: $username"; ?> </b><br>
-                            <b> <?php echo "Email: $email"; ?> </b><br>
-                            <b> <?php echo "Description: $description"; ?> </b><br>
+                            mysqli_data_seek($otherQuery, 0);
+                            $otherRow = mysqli_fetch_array($otherQuery);
+                            
+                            if ($otherRow): ?>
+                                <?php $username = $otherRow['username'];
+                                    $email = $otherRow['email'];
+                                    $description = $otherRow['description'];
+
+                                ?> <b> <?php echo "Username: $username"; ?> </b><br>
+                                <b> <?php echo "Email: $email"; ?> </b><br>
+                                <b> <?php echo "Description: $description"; ?> </b><br>
+                            <?php endif ?>
                         <?php
+                        
                         }else {
                             header("Location: ../index.php");
                         }
                         ?>
                     </div>
+                    <?php
 
-                    <div class="card mb-4">
-                        <div class="card-body">
-                            <h2 class="card-title text-center">Add Tweet</h2>
-                            <form action="../home/process_home.php" method="POST">
-                                <div class="mb-3">
-                                    <label for="tweet" class="form-label">Tweet</label>
-                                    <textarea class="form-control alert alert-info" id="tweet" name="tweet" rows="3" required></textarea>
-                                </div>
-                                <div class="text-center">
-                                    <button type="submit" class="btn btn-primary">Submit</button>
-                                </div>
-                            </form>
-                        </div>
-                    </div>
+                    if(isset($_SESSION["usuario"])) {
 
+                        $userUsername = $_SESSION["usuario"]['username'];
+                        mysqli_data_seek($otherQuery, 0);
+                        $UserQuery = mysqli_fetch_array($otherQuery);
+
+                        if ($UserQuery) { 
+                            if ($userUsername !== $UserQuery['username'] && mysqli_num_rows($queryFollow) !== 1) { ?>
+
+                                <form action="../user/following.php" method="POST">
+                                <input type="hidden" name="idUserFollow" value="<?= $UserQuery['id'] ?>">
+                                    <button class="btn btn-outline-primary" type="submit" name="buttonFollow">Follow</button>
+                                </form>
+                            <?php 
+                            }
+
+                            if ($userUsername !== $UserQuery['username'] && mysqli_num_rows($queryFollow) === 1) { ?>
+
+                                <form action="../user/unfollow.php" method="POST">
+                                <input type="hidden" name="idUserFollow" value="<?= $UserQuery['id'] ?>">
+                                    <button class="btn btn-outline-danger" type="submit" name="buttonFollow">Unfollow</button>
+                                </form>
+
+                                <?php 
+                            }
+                        }
+                    }    
+                    ?>
                 </div>
             </div>
         </div>
@@ -87,7 +129,10 @@ $query = mysqli_query($connect, $sql);
                 <div class="card-body">
                     <h2 class="card-title text-center">Twitter Board</h2>
                     <div class="alert alert-info">
-                    <?php while ($row = mysqli_fetch_array($query)): ?>
+                    <?php 
+                    mysqli_data_seek($query, 0);
+                    
+                    while ($row = mysqli_fetch_array($query)): ?>
                     <div class="border border-dark p-3 mb-3">
                         <form action="../user/view.php" method=POST>
                             <input type="hidden" name="userIdForm" value="<?= $row['userId'] ?>">

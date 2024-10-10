@@ -3,15 +3,25 @@ require_once "../connection/connection.php";
 session_start();
 
 $connect = connection();
-$idUser = $_SESSION['usuario']["id"];
 
-//devuelve los datos de publicacion junto con el username
+$userId = $_SESSION['usuario']['id'];
+
 $sql = "SELECT *,
             (SELECT username
             FROM social_network.users 
             WHERE users.id = publications.userId) AS username
-        FROM social_network.publications";
+        FROM social_network.publications
+        WHERE userId = '$userId'";
+
 $query = mysqli_query($connect, $sql);
+
+
+$sqlUser = "SELECT *
+            FROM social_network.users
+            WHERE id = '$userId'";
+
+$otherQuery = mysqli_query($connect, $sqlUser);
+
 ?>
 
 <!DOCTYPE html>
@@ -47,37 +57,27 @@ $query = mysqli_query($connect, $sql);
                 <div class="card-body">
                     <h2 class="card-title text-center">User Information</h2>
                     <div class="alert alert-info">
-                        <?php
-                        if (isset($_SESSION["usuario"])) {
-                            $username = $_SESSION["usuario"]["username"];
-                            $email = $_SESSION["usuario"]["email"];
-                            $description = $_SESSION["usuario"]["description"];
+                        <?php 
+                        if(isset($_SESSION["usuario"])) {
+                            if ($otherRow = mysqli_fetch_array($otherQuery)): ?>
+                                <?php $username = $otherRow['username'];
+                                    $email = $otherRow['email'];
+                                    $description = $otherRow['description'];
 
-                            ?> <b> <?php echo "Username: $username"; ?> </b><br>
-                            <b> <?php echo "Email: $email"; ?> </b><br>
-                            <b> <?php echo "Description: $description"; ?> </b><br>
+                                ?> <b> <?php echo "Username: $username"; ?> </b><br>
+                                <b> <?php echo "Email: $email"; ?> </b><br>
+                                <b> <?php echo "Description: $description"; ?> </b><br>
+                                <?php endif ?>
                         <?php
+                        
                         }else {
                             header("Location: ../index.php");
                         }
                         ?>
                     </div>
-
-                    <div class="card mb-4">
-                        <div class="card-body">
-                            <h2 class="card-title text-center">Add Tweet</h2>
-                            <form action="../home/process_home.php" method="POST">
-                                <div class="mb-3">
-                                    <label for="tweet" class="form-label">Tweet</label>
-                                    <textarea class="form-control alert alert-info" id="tweet" name="tweet" rows="3" required></textarea>
-                                </div>
-                                <div class="text-center">
-                                    <button type="submit" class="btn btn-primary">Submit</button>
-                                </div>
-                            </form>
-                        </div>
-                    </div>
-
+                    <form action="./edit.php" method="POST">
+                        <button class="btn btn-warning">Edit</button>
+                    </form>
                 </div>
             </div>
         </div>
