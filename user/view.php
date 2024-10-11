@@ -32,6 +32,20 @@ $sqlFollow = "SELECT *
             WHERE users_id = $userId";
 
 $queryFollow = mysqli_query($connect, $sqlFollow);
+
+$sqlCountFollowing = "SELECT COUNT(users_id) AS Following
+                    FROM social_network.follows 
+                    WHERE users_id =  $userId";
+
+$queryCountFollowing = mysqli_query($connect, $sqlCountFollowing);
+$countFollowingData = mysqli_fetch_assoc($queryCountFollowing);
+
+$sqlCountFollowers = "SELECT COUNT(userToFollowId) as Followers
+                    FROM social_network.follows 
+                    WHERE users_id =  $userId";
+
+$queryCountFollowers = mysqli_query($connect, $sqlCountFollowers);
+$countFollowersData = mysqli_fetch_assoc($queryCountFollowers);
         
 ?>
 
@@ -120,6 +134,14 @@ $queryFollow = mysqli_query($connect, $sqlFollow);
                         }
                     }    
                     ?>
+                    <form action="./listFollowing.php" method="POST">
+                        <input type="hidden" name="userID" value="<?=$userIdForm ?>">
+                        <p>Following: <button class="btn btn-link" type="submit"><?= $countFollowingData['Following'] ?> </button> </p>
+                    </form>
+                    <form action="./listFollowers.php" method="POST">
+                        <input type="hidden" name="userID" value="<?=$userIdForm ?>">
+                        <p>Followers: <button class="btn btn-link" type="submit"><?= $countFollowersData['Followers'] ?>  </button> </p>
+                    </form>
                 </div>
             </div>
         </div>
