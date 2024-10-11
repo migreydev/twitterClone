@@ -134,9 +134,14 @@ $countFollowersData = mysqli_fetch_assoc($queryCountFollowers);
                         }
                     }    
                     ?>
-
-                    <p>Following: <?= $countFollowingData['Following'] ?></p>
-                    <p>Followers: <?= $countFollowersData['Followers'] ?></p>
+                    <form action="./listFollowing.php" method="POST">
+                        <input type="hidden" name="userID" value="<?=$userIdForm ?>">
+                        <p>Following: <button class="btn btn-link" type="submit"><?= $countFollowingData['Following'] ?> </button> </p>
+                    </form>
+                    <form action="./listFollowers.php" method="POST">
+                        <input type="hidden" name="userID" value="<?=$userIdForm ?>">
+                        <p>Followers: <button class="btn btn-link" type="submit"><?= $countFollowersData['Followers'] ?>  </button> </p>
+                    </form>
                 </div>
             </div>
         </div>
