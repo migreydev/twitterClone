@@ -54,7 +54,7 @@ $usernameCount = mysqli_fetch_assoc($query);
     <div class="col-md-7"> 
         <div class="card mb-4"> 
             <div class="card-body">
-                <h2 class="card-title text-center">Following <?= $usernameCount['username']?> </h2>
+                <h2 class="card-title text-center"><?= $usernameCount['username']?> follows </h2>
                 <div class="alert alert-info">
                     <?php 
                     mysqli_data_seek($query, 0);
