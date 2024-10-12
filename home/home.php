@@ -6,11 +6,16 @@ $connect = connection();
 $idUser = $_SESSION['usuario']["id"];
 
 //devuelve los datos de publicacion junto con el username
-$sql = "SELECT *,
-            (SELECT username
-            FROM social_network.users 
-            WHERE users.id = publications.userId) AS username
-        FROM social_network.publications";
+$sql = "SELECT text, createDate, userId,
+       (SELECT username 
+        FROM social_network.users 
+        WHERE users.id = publications.userId) AS username
+FROM social_network.publications
+WHERE userId IN (
+    SELECT userToFollowId 
+    FROM social_network.follows 
+    WHERE users_id = $idUser)
+ORDER BY createDate DESC"; 
 $query = mysqli_query($connect, $sql);
 
 $sqlCountFollowers = "SELECT COUNT(users_id) AS Followers

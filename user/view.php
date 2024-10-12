@@ -42,6 +42,10 @@ $sqlFollow = "SELECT *
 
 $queryFollow = mysqli_query($connect, $sqlFollow);
 
+if(!$queryFollow) {
+    header("Location: ../user/view.php");
+}
+
 //Consulta para obtener los seguidores del usuario a consultar
 $sqlCountFollowers = "SELECT COUNT(users_id) AS Followers
                     FROM social_network.follows 

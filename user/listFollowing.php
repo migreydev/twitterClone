@@ -63,6 +63,7 @@ $usernameCount = mysqli_fetch_assoc($query);
                         <div class="border border-dark p-3 mb-3">
                             <form action="../user/view.php" method=POST>
                                 <h4 class="text-center"> 
+                                    <input type="hidden" name="userIdForm" value="<?= $row['userToFollowId'] ?>">
                                     <button type="submit" class="btn btn-link"> <?= $row['following'] ?></button>
                                 </h4>
                             </form>

@@ -69,6 +69,7 @@ $usernameQuery = mysqli_fetch_assoc($queryUser);
                             <div class="border border-dark p-3 mb-3">
                                 <form action="../user/view.php" method=POST>
                                     <h4 class="text-center"> 
+                                    <input type="hidden" name="userIdForm" value="<?= $row['users_id'] ?>">
                                         <button type="submit" class="btn btn-link"> <?= $row['username'] ?></button>
                                     </h4>
                                 </form>
