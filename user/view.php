@@ -20,18 +20,24 @@ $sql = "SELECT *,
 
 $query = mysqli_query($connect, $sql);
 
-
+// Consulta para obtener información del usuario
 $sqlUser = "SELECT *
             FROM social_network.users
             WHERE id = '$userIdForm'";
 
 $otherQuery = mysqli_query($connect, $sqlUser);
 
+// id del usuario actual
 $userId = $_SESSION['usuario']['id'];
+
+$otherUserId = '';
+if ($otherRow = mysqli_fetch_array($otherQuery)) {
+    $otherUserId = $otherRow['id'];
+}
 
 $sqlFollow = "SELECT * 
             FROM social_network.follows
-            WHERE users_id = $userId";
+            WHERE users_id = $userId AND userToFollowId = $otherUserId";
 
 $queryFollow = mysqli_query($connect, $sqlFollow);
 
@@ -111,29 +117,27 @@ $countFollowingData = mysqli_fetch_assoc($queryCountFollowing);
                     <?php
 
                     if(isset($_SESSION["usuario"])) {
-
                         $userUsername = $_SESSION["usuario"]['username'];
-                        mysqli_data_seek($otherQuery, 0);
-                        $UserQuery = mysqli_fetch_array($otherQuery);
 
-                        if ($UserQuery) { 
-                            if ($userUsername !== $UserQuery['username'] && mysqli_num_rows($queryFollow) !== 1) { ?>
-
-                                <form action="../user/following.php" method="POST">
-                                <input type="hidden" name="idUserFollow" value="<?= $UserQuery['id'] ?>">
-                                    <button class="btn btn-outline-primary" type="submit" name="buttonFollow">Follow</button>
-                                </form>
-                            <?php 
-                            }
-
-                            if ($userUsername !== $UserQuery['username'] && mysqli_num_rows($queryFollow) === 1) { ?>
-
-                                <form action="../user/unfollow.php" method="POST">
-                                <input type="hidden" name="idUserFollow" value="<?= $UserQuery['id'] ?>">
-                                    <button class="btn btn-outline-danger" type="submit" name="buttonFollow">Unfollow</button>
-                                </form>
-
+                        if ($otherRow) { 
+                            if ($userUsername !== $otherRow['username']) {
+                                
+                                
+                                $isFollowing = mysqli_num_rows($queryFollow) > 0;
+                
+                                if (!$isFollowing) { ?>
+                                    <form action="../user/following.php" method="POST">
+                                        <input type="hidden" name="idUserFollow" value="<?= $otherUserId ?>">
+                                        <button class="btn btn-outline-primary" type="submit" name="buttonFollow">Follow</button>
+                                    </form>
                                 <?php 
+                                } else { ?>
+                                    <form action="../user/unfollow.php" method="POST">
+                                        <input type="hidden" name="idUserFollow" value="<?= $otherUserId ?>">
+                                        <button class="btn btn-outline-danger" type="submit" name="buttonFollow">Unfollow</button>
+                                    </form>
+                                <?php 
+                                }
                             }
                         }
                     }    
