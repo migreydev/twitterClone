@@ -17,8 +17,14 @@ FROM social_network.follows
 WHERE userToFollowId = $idUser";
 
 $query = mysqli_query($connect, $sql);
-
 $usernameCount = mysqli_fetch_assoc($query);
+
+$slqUsername = "SELECT username
+                FROM users
+                WHERE id = $idUser";
+
+$queryUser =  mysqli_query($connect, $slqUsername);
+$usernameQuery = mysqli_fetch_assoc($queryUser);
 
 ?>
 
@@ -54,20 +60,25 @@ $usernameCount = mysqli_fetch_assoc($query);
     <div class="col-md-7"> 
         <div class="card mb-4"> 
             <div class="card-body">
-                <h2 class="card-title text-center">Followers <?= $usernameCount['user']?> </h2>
+                <h2 class="card-title text-center">Followers <?= $usernameQuery['username']?> </h2>
                 <div class="alert alert-info">
                     <?php   
                     mysqli_data_seek($query, 0);
-                    
-                    while ($row = mysqli_fetch_array($query)): ?>
-                        <div class="border border-dark p-3 mb-3">
-                            <form action="../user/view.php" method=POST>
-                                <h4 class="text-center"> 
-                                    <button type="submit" class="btn btn-link"> <?= $row['username'] ?></button>
-                                </h4>
-                            </form>
-                        </div>
-                    <?php endwhile; ?>
+                    if (mysqli_num_rows($query) > 0) {
+                        while ($row = mysqli_fetch_array($query)): ?>
+                            <div class="border border-dark p-3 mb-3">
+                                <form action="../user/view.php" method=POST>
+                                    <h4 class="text-center"> 
+                                        <button type="submit" class="btn btn-link"> <?= $row['username'] ?></button>
+                                    </h4>
+                                </form>
+                            </div>
+                        <?php endwhile;
+                    }else { ?>
+                    <h4 class="text-center"> 
+                        <p>Without followers</p>
+                    </h4>
+                    <?php } ?>
                 </div>
             </div>
         </div>
