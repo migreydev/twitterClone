@@ -3,14 +3,14 @@ require_once "../connection/connection.php";
 session_start();
 
 $connect = connection();
+
 $userIdForm = '';
-
-
+//Comprueba que el id del usuario se ha enviado desde el home
 if(isset($_POST['userIdForm'])){
-    $userIdForm = $_POST['userIdForm'];
+    $userIdForm = $_POST['userIdForm']; //si existe almacena el id del usuario a consultar
 }
 
-
+//Consulta para obtener las publicaciones del usuario a consultar
 $sql = "SELECT *,
             (SELECT username
             FROM social_network.users 
@@ -20,28 +20,29 @@ $sql = "SELECT *,
 
 $query = mysqli_query($connect, $sql);
 
-// Consulta para obtener información del usuario
+// Consulta para obtener todos los datos de la tabla usuario del usuario a consultar
 $sqlUser = "SELECT *
             FROM social_network.users
             WHERE id = '$userIdForm'";
 
 $otherQuery = mysqli_query($connect, $sqlUser);
 
-// id del usuario actual
+// id del usuario actual de la session
 $userId = $_SESSION['usuario']['id'];
 
 $otherUserId = '';
-if ($otherRow = mysqli_fetch_array($otherQuery)) {
-    $otherUserId = $otherRow['id'];
+if ($otherRow = mysqli_fetch_array($otherQuery)) { //si es true y contiene datos
+    $otherUserId = $otherRow['id']; //almacenamos el id del usuario
 }
 
+//Consulta para saber si el usuario de la session sigue al usuario que se consulta
 $sqlFollow = "SELECT * 
             FROM social_network.follows
             WHERE users_id = $userId AND userToFollowId = $otherUserId";
 
 $queryFollow = mysqli_query($connect, $sqlFollow);
 
-
+//Consulta para obtener los seguidores del usuario a consultar
 $sqlCountFollowers = "SELECT COUNT(users_id) AS Followers
                     FROM social_network.follows 
                     WHERE userToFollowId = $userIdForm";
@@ -49,6 +50,7 @@ $sqlCountFollowers = "SELECT COUNT(users_id) AS Followers
 $queryCountFollowers = mysqli_query($connect, $sqlCountFollowers);
 $countFollowersData = mysqli_fetch_assoc($queryCountFollowers);
 
+//Consulta para obtener los usuario que sigue el usuario a consultar
 $sqlCountFollowing = "SELECT COUNT(userToFollowId) as Following
                     FROM follows 
                     WHERE users_id =  $userIdForm";
@@ -93,11 +95,14 @@ $countFollowingData = mysqli_fetch_assoc($queryCountFollowing);
                     <h2 class="card-title text-center">User Information</h2>
                     <div class="alert alert-info">
                         <?php 
+                        //si la session existe
                         if(isset($_SESSION["usuario"])) {
-
+                            
                             mysqli_data_seek($otherQuery, 0);
+                            //contiene la fila del usuario a consultar
                             $otherRow = mysqli_fetch_array($otherQuery);
                             
+                            //Si es true
                             if ($otherRow): ?>
                                 <?php $username = $otherRow['username'];
                                     $email = $otherRow['email'];
@@ -117,20 +122,23 @@ $countFollowingData = mysqli_fetch_assoc($queryCountFollowing);
                     <?php
 
                     if(isset($_SESSION["usuario"])) {
-                        $userUsername = $_SESSION["usuario"]['username'];
+                        $userUsername = $_SESSION["usuario"]['username']; //Se almacena el username de la session del usuario
 
+                        //Si contiene la fila del usuario a consultar
                         if ($otherRow) { 
-                            if ($userUsername !== $otherRow['username']) {
+                            if ($userUsername !== $otherRow['username']) { //Verifica que no son el mismo usuario
                                 
-                                
+                                //Almacena si ambos se siguen 
                                 $isFollowing = mysqli_num_rows($queryFollow) > 0;
                 
+                                //Si no se siguen aparece el boton follow
                                 if (!$isFollowing) { ?>
                                     <form action="../user/following.php" method="POST">
                                         <input type="hidden" name="idUserFollow" value="<?= $otherUserId ?>">
                                         <button class="btn btn-outline-primary" type="submit" name="buttonFollow">Follow</button>
                                     </form>
                                 <?php 
+                                //Si se sigue aparece el boton unfollow
                                 } else { ?>
                                     <form action="../user/unfollow.php" method="POST">
                                         <input type="hidden" name="idUserFollow" value="<?= $otherUserId ?>">
@@ -161,7 +169,7 @@ $countFollowingData = mysqli_fetch_assoc($queryCountFollowing);
                     <div class="alert alert-info">
                     <?php 
                     mysqli_data_seek($query, 0);
-                    
+                    //bucle de las publicaciones del usuario a consultar
                     while ($row = mysqli_fetch_array($query)): ?>
                     <div class="border border-dark p-3 mb-3">
                         <form action="../user/view.php" method=POST>
