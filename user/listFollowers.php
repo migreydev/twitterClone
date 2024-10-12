@@ -6,15 +6,15 @@ $connect = connection();
 
 $idUser = $_POST['userID'];
 
-$sql = "SELECT *,
-            (SELECT username
-            FROM social_network.users 
-            WHERE users.id = follows.users_id) AS username,
-             (SELECT username
-            FROM social_network.users 
-            WHERE users.id = follows.userToFollowId) AS followers
-        FROM social_network.follows 
-        WHERE users_id = $idUser";
+$sql = "SELECT users_id,
+        (SELECT username
+        FROM social_network.users 
+        WHERE users.id = follows.userToFollowId) AS user,
+        (SELECT username
+        FROM social_network.users 
+        WHERE users.id = follows.users_id) AS username
+FROM social_network.follows 
+WHERE userToFollowId = $idUser";
 
 $query = mysqli_query($connect, $sql);
 
@@ -54,16 +54,16 @@ $usernameCount = mysqli_fetch_assoc($query);
     <div class="col-md-7"> 
         <div class="card mb-4"> 
             <div class="card-body">
-                <h2 class="card-title text-center">Followers <?= $usernameCount['username']?> </h2>
+                <h2 class="card-title text-center">Followers <?= $usernameCount['user']?> </h2>
                 <div class="alert alert-info">
-                    <?php 
+                    <?php   
                     mysqli_data_seek($query, 0);
                     
                     while ($row = mysqli_fetch_array($query)): ?>
                         <div class="border border-dark p-3 mb-3">
                             <form action="../user/view.php" method=POST>
                                 <h4 class="text-center"> 
-                                    <button type="submit" class="btn btn-link"> <?= $row['followers'] ?></button>
+                                    <button type="submit" class="btn btn-link"> <?= $row['username'] ?></button>
                                 </h4>
                             </form>
                         </div>

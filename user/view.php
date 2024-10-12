@@ -5,9 +5,11 @@ session_start();
 $connect = connection();
 $userIdForm = '';
 
+
 if(isset($_POST['userIdForm'])){
     $userIdForm = $_POST['userIdForm'];
 }
+
 
 $sql = "SELECT *,
             (SELECT username
@@ -33,19 +35,21 @@ $sqlFollow = "SELECT *
 
 $queryFollow = mysqli_query($connect, $sqlFollow);
 
-$sqlCountFollowing = "SELECT COUNT(users_id) AS Following
-                    FROM social_network.follows 
-                    WHERE users_id =  $userId";
 
-$queryCountFollowing = mysqli_query($connect, $sqlCountFollowing);
-$countFollowingData = mysqli_fetch_assoc($queryCountFollowing);
-
-$sqlCountFollowers = "SELECT COUNT(userToFollowId) as Followers
+$sqlCountFollowers = "SELECT COUNT(users_id) AS Followers
                     FROM social_network.follows 
-                    WHERE users_id =  $userId";
+                    WHERE userToFollowId = $userIdForm";
 
 $queryCountFollowers = mysqli_query($connect, $sqlCountFollowers);
 $countFollowersData = mysqli_fetch_assoc($queryCountFollowers);
+
+$sqlCountFollowing = "SELECT COUNT(userToFollowId) as Following
+                    FROM follows 
+                    WHERE users_id =  $userIdForm";
+
+
+$queryCountFollowing = mysqli_query($connect, $sqlCountFollowing);
+$countFollowingData = mysqli_fetch_assoc($queryCountFollowing);
         
 ?>
 

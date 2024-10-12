@@ -12,6 +12,23 @@ $sql = "SELECT *,
             WHERE users.id = publications.userId) AS username
         FROM social_network.publications";
 $query = mysqli_query($connect, $sql);
+
+$sqlCountFollowers = "SELECT COUNT(users_id) AS Followers
+                    FROM social_network.follows 
+                    WHERE userToFollowId = $idUser";
+
+$queryCountFollowers = mysqli_query($connect, $sqlCountFollowers);
+$countFollowersData = mysqli_fetch_assoc($queryCountFollowers);
+
+$sqlCountFollowing = "SELECT COUNT(userToFollowId) as Following
+                    FROM follows 
+                    WHERE users_id =  $idUser";
+
+
+$queryCountFollowing = mysqli_query($connect, $sqlCountFollowing);
+$countFollowingData = mysqli_fetch_assoc($queryCountFollowing);
+
+
 ?>
 
 <!DOCTYPE html>
@@ -61,6 +78,17 @@ $query = mysqli_query($connect, $sql);
                             header("Location: ../index.php");
                         }
                         ?>
+                    </div>
+                    <div class="d-flex">
+                        <form action="../user/listFollowing.php" method="POST" class="me-3">
+                            <input type="hidden" name="userID" value="<?=$idUser ?>">
+                            <p class="small">Following: <button class="btn btn-link small" type="submit"><?= $countFollowingData['Following'] ?> </button></p>
+                        </form>
+
+                        <form action="../user/listFollowers.php" method="POST">
+                            <input type="hidden" name="userID" value="<?=$idUser ?>">
+                            <p class="small">Followers: <button class="btn btn-link small" type="submit"><?= $countFollowersData['Followers'] ?> </button></p>
+                        </form>
                     </div>
 
                     <div class="card mb-4">
