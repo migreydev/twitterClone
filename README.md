@@ -17,3 +17,5 @@ El trabajo consistirá en hacer una aplicación clon de Twitter, al estilo del a
 6. La página para ver los usuarios que siguen a un usuario.
 
 El modelado de la base de datos se adjuntará en la tarea. Será básica y podrá ser ampliable por el alumno en caso de querer añadir funcionalidades extras que por supuesto serán muy bien valoradas (Por ejemplo, funcionalidad de enviar mensajes privados).
+
+![Diagrama del modelo Social Network](./modelEER.png)

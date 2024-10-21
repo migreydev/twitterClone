@@ -3,7 +3,13 @@ require_once "../connection/connection.php";
 session_start();
 
 $connect = connection();
+
+if (!isset($_SESSION["usuario"])) {
+    header("Location: ../index.php");
+}
+
 $idUser = $_SESSION['usuario']["id"];
+
 
 //devuelve los datos de publicacion junto con el username
 $sql = "SELECT text, createDate, userId,
@@ -11,7 +17,7 @@ $sql = "SELECT text, createDate, userId,
         FROM social_network.users 
         WHERE users.id = publications.userId) AS username
 FROM social_network.publications
-WHERE userId IN (
+WHERE userId IN (   
     SELECT userToFollowId 
     FROM social_network.follows 
     WHERE users_id = $idUser)
@@ -49,7 +55,8 @@ $countFollowingData = mysqli_fetch_assoc($queryCountFollowing);
     <div class="container-fluid">
         <a class="navbar-brand text-dark" href="../home/home.php"><b>Twitter Clone</b></a>
         <a class="nav-link text-dark me-3" href="../home/home.php">Home</a>
-        <a class="nav-link text-dark" href="../user/myProfile.php">My Profile</a>
+        <a class="nav-link text-dark me-3" href="../user/myProfile.php">My Profile</a>
+        <a class="nav-link text-dark" href="../functionalities/messages.php">Messages</a>
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
         </button>

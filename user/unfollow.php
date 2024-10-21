@@ -5,6 +5,10 @@ session_start();
 
 $connect = connection();
 
+if (!isset($_SESSION["usuario"])) {
+    header("Location: ../index.php");
+}
+
 $userID = $_SESSION['usuario']['id'];
 $userIdFollow = $_POST['idUserFollow'];
 
