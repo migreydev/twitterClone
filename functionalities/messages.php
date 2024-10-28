@@ -11,11 +11,11 @@ if (!isset($_SESSION["usuario"])) {
 $usuer = $_SESSION["usuario"]["id"];
 
 $sql = "SELECT *,
-            (SELECT username 
-            FROM social_network.users 
-            WHERE users.id = private_messages.receiverId) AS username
-        FROM social_network.private_messages 
-        WHERE senderId = 2";
+       (SELECT username 
+        FROM social_network.users 
+        WHERE users.id = private_messages.senderId) AS username
+FROM social_network.private_messages 
+WHERE receiverId = $usuer;";
 
 $query = mysqli_query($connect, $sql);
 $data = mysqli_fetch_assoc($query);
@@ -55,18 +55,37 @@ $data = mysqli_fetch_assoc($query);
             <div class="card mb-4">
                 <div class="card-body">
                     <h2 class="card-title text-center">Messages</h2>
+                    <form action="../functionalities/conversation.php" method="POST">
                     <div class="alert alert-info">
-                        <b><?php echo "Username: {$data['username']}"; ?></b><br>
-                        <b> <?php echo "Message: {$data['text']}"; ?> </b><br>
+                        <form action="../user/view.php" method="POST">
+                            <input type="hidden" name="receiverId" value="<?= $data['receiverId'] ?>">
+                            <input type="hidden" name="conversationId" value="<?= $data['id'] ?>">
+                                <?php if(isset($data['username'])){ ?>
+                                    <button type="submit" class="btn btn-link text-decoration-none">
+                                        <b><?php echo "Username: {$data['username']}"; ?></b><br>
+                                    </button>
+                                <?php }else { ?>
+                                    <b><?php echo "No messages"; ?></b><br>
+                                <?php }?>
+                        </form>
                     </div>
+
 
                     <div class="card mb-4">
                         <div class="card-body">
                             <h2 class="card-title text-center">Add Message</h2>
-                            <form action="../home/process_home.php" method="POST">
+                            <form action="../functionalities/process_messages.php" method="POST">
+                                <div class="mb-1">
+                                    <label for="username" class="form-label">User</label>
+                                    <div class="input-group">
+                                    <input type="hidden" name="receiverId" value="<?= $data['receiverId'] ?>">
+                                        <textarea class="form-control alert alert-info" id="username" name="username" rows="1" required></textarea>
+                                    </div>
+                                </div>
+
                                 <div class="mb-3">
-                                    <label for="tweet" class="form-label">Message</label>
-                                    <textarea class="form-control alert alert-info" id="tweet" name="tweet" rows="3" required></textarea>
+                                    <label for="message" class="form-label">Message</label>
+                                    <textarea class="form-control alert alert-info" id="message" name="message" rows="3" required></textarea>
                                 </div>
                                 <div class="text-center">
                                     <button type="submit" class="btn btn-primary">Submit</button>
@@ -78,27 +97,6 @@ $data = mysqli_fetch_assoc($query);
                 </div>
             </div>
         </div>
-
-        <div class="col-md-7"> 
-            <div class="card mb-4">
-                <div class="card-body">
-                    <h2 class="card-title text-center">Conversations</h2>
-                    <div class="alert alert-info">
-                    <?php while ($row = mysqli_fetch_array($query)): ?>
-                    <div class="border border-dark p-3 mb-3">
-                        <form action="../user/view.php" method=POST>
-                            <input type="hidden" name="userIdForm" value="<?= $row['userId'] ?>">
-                            <h4 class="text-center"> <button type="submit" class="btn btn-link"> <?= $row['username'] ?></a></h4>
-                        </form>
-                        <p class="text-center"><?= $row['text'] ?></p>
-                        <small class="text-center"><?= $row['createDate'] ?></small>
-                    </div>
-                    <?php endwhile; ?>
-                    </div>
-                </div>
-            </div>
-        </div>
-
     </div>
 </div>
 </body>
