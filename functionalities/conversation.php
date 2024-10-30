@@ -4,22 +4,28 @@ session_start();
 
 $connect = connection();
 
-if(!isset($_SESSION['usuario'])){
+if (!isset($_SESSION['usuario'])) {
     header("Location: ../index.php");
 }
 
 $usuer = $_SESSION["usuario"]["id"];
 
-$receiverId = $_POST['receiverId'];
+// Verifica si se ha recibido el receiverId
+if (!isset($_POST['receiverId']) || !is_numeric($_POST['receiverId'])) {
+    header("Location: ../functionalities/messages.php");
+}
 
+$receiverId = (int)$_POST['receiverId'];
 
+// Consulta para obtener la conversación con el usuario específico
 $sqlConversations = "SELECT *,
        (SELECT username 
         FROM social_network.users 
         WHERE users.id = private_messages.senderId) AS username
 FROM social_network.private_messages 
-WHERE receiverId = $usuer;"
-; 
+WHERE (receiverId = $usuer AND senderId = $receiverId) 
+   OR (senderId = $usuer AND receiverId = $receiverId)
+ORDER BY createDate ASC;"; 
 
 $querySQL = mysqli_query($connect, $sqlConversations);
 
@@ -39,6 +45,7 @@ $querySQL = mysqli_query($connect, $sqlConversations);
         <div class="container-fluid">
             <a class="navbar-brand text-dark" href="../home/home.php"><b>Twitter Clone</b></a>
             <a class="nav-link text-dark me-3" href="../home/home.php">Home</a>
+            <a class="nav-link text-dark me-3" href="../user/board.php">Twitter Board</a>
             <a class="nav-link text-dark me-3" href="../user/myProfile.php">My Profile</a>
             <a class="nav-link text-dark" href="../functionalities/messages.php">Messages</a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
@@ -59,25 +66,21 @@ $querySQL = mysqli_query($connect, $sqlConversations);
             <div class="col-md-7"> 
                 <div class="card mb-4">
                     <div class="card-body">
-                    <form action="../user/view.php" method="POST">
-                    <?php $conversationData = mysqli_fetch_assoc($querySQL)['username'] ?>
-                    <button type="submit" class="btn btn-link text-decoration-none">
-                        <h2 class="card-title text-center">Conversations with <?php echo $conversationData; ?> </h2>
-                    </button>
+                        <h2 class="card-title text-center">Conversation</h2>
                         <div class="alert alert-info">
-                            <?php while ($dataSQL = mysqli_fetch_assoc($querySQL)): ?>
-                            <div class="border border-dark p-3 mb-3">
-                                    <input type="hidden" name="userIdForm" value="<?= $dataSQL['username'] ?>">
-                                    <input type="hidden" name="conversationId" value="<?= $dataSQL['id'] ?>">
-                                        <div>
-                                            <small class="text-muted"><?php echo ($dataSQL['username']); ?></small>
-                                        </div>
-                                        <b><?php echo "{$dataSQL['text']}"; ?></b><br>
-                                        <small><?php echo "{$dataSQL['createDate']}"; ?></small><br>
-                                
-                            </div>
-                            <?php endwhile; ?>
-                            </form>
+                            <?php if (mysqli_num_rows($querySQL) > 0): ?>
+                                <?php while ($dataSQL = mysqli_fetch_assoc($querySQL)): ?>
+                                <div class="border border-dark p-3 mb-3">
+                                    <div>
+                                        <small class="text-muted"><?php echo $dataSQL['username']; ?></small>
+                                    </div>
+                                    <b><?php echo $dataSQL['text']; ?></b><br>
+                                    <small><?php echo $dataSQL['createDate']; ?></small><br>
+                                </div>
+                                <?php endwhile; ?>
+                            <?php else: ?>
+                                <b>No messages in this conversation.</b><br>
+                            <?php endif; ?>
                         </div>
                     </div>
                 </div>

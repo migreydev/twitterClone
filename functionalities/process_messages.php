@@ -4,38 +4,39 @@ session_start();
 
 $connect = connection();
 
-if(!isset($_SESSION['usuario'])){
+if (!isset($_SESSION['usuario'])) {
     header("Location: ../index.php");
 }
 
 $idUserSession = $_SESSION['usuario']["id"];
-
+$username = '';
 $text = '';
-$receiverId=0;
 
-if(isset($_POST)){
+if (isset($_POST['message']) && isset($_POST['username'])) {
     $text = $_POST['message'];
     $username = $_POST['username'];
 }
 
-$id= 0;
 $date = date('Y-m-d');
 
-$sqlUserid = "SELECT id FROM social_network.users WHERE username = '$username'";
+$sqlUserid = "SELECT id FROM social_network.users WHERE username = '$username';";
 $idUserSearch = mysqli_query($connect, $sqlUserid);
-
 
 if ($idUserSearch && mysqli_num_rows($idUserSearch) > 0) {
     $userDataId = mysqli_fetch_assoc($idUserSearch)['id'];
 
-    $sqlMessage = "INSERT INTO social_network.private_messages (id, senderId, receiverId, text, createDate) VALUES ($id, $idUserSession , $userDataId, $text, $date)";
-    header("Location: ../functionalities/messages.php");
+    //Inserta el mensaje en la base de datos
+    $sqlMessage = "INSERT INTO social_network.private_messages (senderId, receiverId, text, createDate) VALUES ($idUserSession, $userDataId, '$text', '$date')";
 
-}else {
+    // Ejecuta la consulta e imprime cualquier error
+    if (mysqli_query($connect, $sqlMessage)) {
+        header("Location: ../functionalities/messages.php");
+    } else {
+        echo "Error: " . mysqli_error($connect);
+    }
+} else {
     $_SESSION['add'] = 'User not found.';
     header("Location: ../home/home.php");
 }
-
-header("Location: ../../functionalities/messages.php");
 
 ?>

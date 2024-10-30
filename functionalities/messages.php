@@ -10,16 +10,24 @@ if (!isset($_SESSION["usuario"])) {
 
 $usuer = $_SESSION["usuario"]["id"];
 
-$sql = "SELECT *,
-       (SELECT username 
-        FROM social_network.users 
-        WHERE users.id = private_messages.senderId) AS username
+// Consulta para obtener usuarios con los que se ha tenido conversaciones
+$sql = "SELECT DISTINCT 
+    (CASE 
+        WHEN senderId = $usuer THEN receiverId 
+        ELSE senderId 
+    END) AS otherUserId,
+    (SELECT username 
+     FROM social_network.users 
+     WHERE id = 
+        (CASE 
+            WHEN senderId = $usuer THEN receiverId 
+            ELSE senderId 
+        END)
+    ) AS username
 FROM social_network.private_messages 
-WHERE receiverId = $usuer;";
+WHERE receiverId = $usuer OR senderId = $usuer;";
 
 $query = mysqli_query($connect, $sql);
-$data = mysqli_fetch_assoc($query);
-
 ?>
 
 <!DOCTYPE html>
@@ -35,6 +43,7 @@ $data = mysqli_fetch_assoc($query);
     <div class="container-fluid">
         <a class="navbar-brand text-dark" href="../home/home.php"><b>Twitter Clone</b></a>
         <a class="nav-link text-dark me-3" href="../home/home.php">Home</a>
+        <a class="nav-link text-dark me-3" href="../user/board.php">Twitter Board</a>
         <a class="nav-link text-dark me-3" href="../user/myProfile.php">My Profile</a>
         <a class="nav-link text-dark" href="../functionalities/messages.php">Messages</a>
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
@@ -50,54 +59,53 @@ $data = mysqli_fetch_assoc($query);
     </div>
 </nav>
 <div class="container mt-5">
-    <div class="row">
-        <div class="col-md-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
             <div class="card mb-4">
                 <div class="card-body">
                     <h2 class="card-title text-center">Messages</h2>
-                    <form action="../functionalities/conversation.php" method="POST">
                     <div class="alert alert-info">
-                        <form action="../user/view.php" method="POST">
-                            <input type="hidden" name="receiverId" value="<?= $data['receiverId'] ?>">
-                            <input type="hidden" name="conversationId" value="<?= $data['id'] ?>">
-                                <?php if(isset($data['username'])){ ?>
+                        <?php if (mysqli_num_rows($query) > 0): ?>
+                            <?php while ($data = mysqli_fetch_assoc($query)): ?>
+                                <form action="../functionalities/conversation.php" method="POST">
+                                    <input type="hidden" name="receiverId" value="<?= $data['otherUserId'] ?>">
                                     <button type="submit" class="btn btn-link text-decoration-none">
-                                        <b><?php echo "Username: {$data['username']}"; ?></b><br>
+                                        <b><?php echo htmlspecialchars($data['username']); ?></b><br>
                                     </button>
-                                <?php }else { ?>
-                                    <b><?php echo "No messages"; ?></b><br>
-                                <?php }?>
-                        </form>
+                                </form>
+                            <?php endwhile; ?>
+                        <?php else: ?>
+                            <b>No messages</b><br>
+                        <?php endif; ?>
                     </div>
-
-
-                    <div class="card mb-4">
-                        <div class="card-body">
-                            <h2 class="card-title text-center">Add Message</h2>
-                            <form action="../functionalities/process_messages.php" method="POST">
-                                <div class="mb-1">
-                                    <label for="username" class="form-label">User</label>
-                                    <div class="input-group">
-                                    <input type="hidden" name="receiverId" value="<?= $data['receiverId'] ?>">
-                                        <textarea class="form-control alert alert-info" id="username" name="username" rows="1" required></textarea>
-                                    </div>
-                                </div>
-
-                                <div class="mb-3">
-                                    <label for="message" class="form-label">Message</label>
-                                    <textarea class="form-control alert alert-info" id="message" name="message" rows="3" required></textarea>
-                                </div>
-                                <div class="text-center">
-                                    <button type="submit" class="btn btn-primary">Submit</button>
-                                </div>
-                            </form>
-                        </div>
-                    </div>
-
                 </div>
             </div>
+
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h2 class="card-title text-center">Add Message</h2>
+                    <form action="../functionalities/process_messages.php" method="POST">
+                        <div class="mb-1">
+                            <label for="username" class="form-label">User</label>
+                            <div class="input-group">
+                                <input type="text" class="form-control alert alert-info" id="username" name="username" required>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="message" class="form-label">Message</label>
+                            <textarea class="form-control alert alert-info" id="message" name="message" rows="3" required></textarea>
+                        </div>
+                        <div class="text-center">
+                            <button type="submit" class="btn btn-primary">Submit</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
         </div>
     </div>
 </div>
 </body>
 </html>
+
