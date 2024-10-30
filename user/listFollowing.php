@@ -10,6 +10,7 @@ if (!isset($_SESSION["usuario"])) {
     header("Location: ../index.php");
 }
 
+// Esta consulta obtiene el ID del usuario que se esta siguiendo (userToFollowId), el nombre del usuario que esta siendo seguido (following), y el nombre del usuario que realiza el seguimiento (username)
 $sql = "SELECT follows.userToFollowId,
             (SELECT username
             FROM social_network.users 

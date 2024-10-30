@@ -10,6 +10,7 @@ if (!isset($_SESSION["usuario"])) {
 
 $userId = $_SESSION['usuario']['id'];
 
+//Esta query devuleve las publicaiones del autor a consultar
 $sql = "SELECT *,
             (SELECT username
             FROM social_network.users 
@@ -19,7 +20,7 @@ $sql = "SELECT *,
 
 $query = mysqli_query($connect, $sql);
 
-
+//Esta query devuelve todos los campos del usuario donde sea igual al id de usuario proprocionado
 $sqlUser = "SELECT *
             FROM social_network.users
             WHERE id = '$userId'";

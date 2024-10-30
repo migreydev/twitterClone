@@ -12,7 +12,7 @@ if (!isset($_SESSION["usuario"])) {
 $userID = $_SESSION['usuario']['id'];
 $userIdFollow = $_POST['idUserFollow'];
 
-
+// Esta consulta elimina la relación de seguimiento 
 $sql = "DELETE FROM follows WHERE users_id = $userID AND userToFollowId = $userIdFollow";
 $query = mysqli_query($connect, $sql);
 

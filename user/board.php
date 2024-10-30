@@ -8,6 +8,7 @@ if (!isset($_SESSION["usuario"])) {
     header("Location: ../index.php");
 }
 
+//Query para devolver todas las publicaciones de todos los usuarios por username
 $query = "SELECT *,
     (SELECT username 
      FROM social_network.users

@@ -8,6 +8,7 @@ if (!isset($_SESSION['usuario'])) {
     header("Location: ../index.php");
 }
 
+//Obtiene el id de la session del usuario actual
 $usuer = $_SESSION["usuario"]["id"];
 
 // Verifica si se ha recibido el receiverId
@@ -15,6 +16,7 @@ if (!isset($_POST['receiverId']) || !is_numeric($_POST['receiverId'])) {
     header("Location: ../functionalities/messages.php");
 }
 
+//convierte el id del usuario a entero
 $receiverId = (int)$_POST['receiverId'];
 
 // Consulta para obtener la conversación con el usuario específico

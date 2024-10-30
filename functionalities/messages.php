@@ -7,7 +7,7 @@ $connect = connection();
 if (!isset($_SESSION["usuario"])) {
     header("Location: ../index.php");
 }
-
+//Obtiene el id del usuario actual
 $usuer = $_SESSION["usuario"]["id"];
 
 // Consulta para obtener usuarios con los que se ha tenido conversaciones
