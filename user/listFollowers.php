@@ -10,6 +10,7 @@ if (!isset($_SESSION["usuario"])) {
 
 $idUser = $_POST['userID'];
 
+// Esta consulta obtiene el ID del usuario que sigue, el nombre del usuario que esta siendo seguido y el nombre del usuario que realiza el seguimiento
 $sql = "SELECT users_id,
         (SELECT username
         FROM social_network.users 
@@ -23,6 +24,7 @@ WHERE userToFollowId = $idUser";
 $query = mysqli_query($connect, $sql);
 $usernameCount = mysqli_fetch_assoc($query);
 
+//Esta query muestra el username que sea igual al id del usuario
 $slqUsername = "SELECT username
                 FROM users
                 WHERE id = $idUser";
@@ -45,6 +47,7 @@ $usernameQuery = mysqli_fetch_assoc($queryUser);
     <div class="container-fluid">
         <a class="navbar-brand text-dark" href="../home/home.php"><b>Twitter Clone</b></a>
         <a class="nav-link text-dark me-3" href="../home/home.php">Home</a>
+        <a class="nav-link text-dark me-3" href="../user/board.php">Twitter Board</a>
         <a class="nav-link text-dark me-3" href="../user/myProfile.php">My Profile</a>
         <a class="nav-link text-dark" href="../functionalities/messages.php">Messages</a>
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">

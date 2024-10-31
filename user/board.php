@@ -4,27 +4,17 @@ session_start();
 
 $connect = connection();
 
-$idUser = $_POST['userID'];
-
 if (!isset($_SESSION["usuario"])) {
     header("Location: ../index.php");
 }
 
-// Esta consulta obtiene el ID del usuario que se esta siguiendo (userToFollowId), el nombre del usuario que esta siendo seguido (following), y el nombre del usuario que realiza el seguimiento (username)
-$sql = "SELECT follows.userToFollowId,
-            (SELECT username
-            FROM social_network.users 
-            WHERE users.id = follows.userToFollowId) AS following,
-            (SELECT username
-            FROM social_network.users 
-            WHERE users.id = follows.users_id) AS username
-        FROM social_network.follows 
-        WHERE users_id = $idUser";
-
-$query = mysqli_query($connect, $sql);
-
-$usernameCount = mysqli_fetch_assoc($query);
-
+//Query para devolver todas las publicaciones de todos los usuarios por username
+$query = "SELECT *,
+    (SELECT username 
+     FROM social_network.users
+     WHERE users.id = publications.userId) AS username
+    FROM publications";
+$query = mysqli_query($connect, $query);
 ?>
 
 <!DOCTYPE html>
@@ -32,7 +22,7 @@ $usernameCount = mysqli_fetch_assoc($query);
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Following</title>
+    <title>Twitter Board</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
 </head>
 <body>
@@ -56,26 +46,26 @@ $usernameCount = mysqli_fetch_assoc($query);
     </div>
 </nav>
 
-
-<div class="d-flex justify-content-center align-items-center" style="min-height: 80vh;">
-    <div class="col-md-7"> 
-        <div class="card mb-4"> 
-            <div class="card-body">
-                <h2 class="card-title text-center"><?= $usernameCount['username']?> follows </h2>
-                <div class="alert alert-info">
-                    <?php 
-                    mysqli_data_seek($query, 0);
-                    
-                    while ($row = mysqli_fetch_array($query)): ?>
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8"> 
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h2 class="card-title text-center">Twitter Board</h2>
+                    <div class="alert alert-info">
+                        <?php while ($row = mysqli_fetch_array($query)): ?>
                         <div class="border border-dark p-3 mb-3">
-                            <form action="../user/view.php" method=POST>
-                                <h4 class="text-center"> 
-                                    <input type="hidden" name="userIdForm" value="<?= $row['userToFollowId'] ?>">
-                                    <button type="submit" class="btn btn-link"> <?= $row['following'] ?></button>
+                            <form action="../user/view.php" method="POST">
+                                <input type="hidden" name="userIdForm" value="<?= $row['userId'] ?>">
+                                <h4 class="text-center">
+                                    <button type="submit" class="btn btn-link"><?= $row['username'] ?></button>
                                 </h4>
                             </form>
+                            <p class="text-center"><?= $row['text'] ?></p>
+                            <small class="text-center"><?= $row['createDate'] ?></small>
                         </div>
-                    <?php endwhile; ?>
+                        <?php endwhile; ?>
+                    </div>
                 </div>
             </div>
         </div>

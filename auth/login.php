@@ -9,11 +9,15 @@ if (isset($_POST)) {
     $password = $_POST['password'];
 }
 
-$sql = "SELECT * FROM users WHERE email = '$email'";
-$res = mysqli_query($connect, $sql);
+// Preparar la consulta para evitar inyecciones SQL
+$stmt = $connect->prepare("SELECT * FROM users WHERE email = ?");
+$stmt->bind_param("s", $email); // 's' indica que el parámetro es una cadena
+$stmt->execute();
+
+$res = $stmt->get_result();
 
 if ($res && mysqli_num_rows($res) == 1) {
-    $user = mysqli_fetch_assoc($res);
+    $user = $res->fetch_assoc();
 
     if (password_verify($password, $user["password"])) {
         $_SESSION["usuario"] = $user;
@@ -26,4 +30,7 @@ if ($res && mysqli_num_rows($res) == 1) {
     $_SESSION["error"] = "Credenciales erroneas";
     header("Location: ../index.php");
 }
+$stmt->close();
+$connect->close(); 
+
 ?>

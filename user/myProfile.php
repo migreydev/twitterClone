@@ -10,6 +10,7 @@ if (!isset($_SESSION["usuario"])) {
 
 $userId = $_SESSION['usuario']['id'];
 
+//Esta query devuleve las publicaiones del autor a consultar
 $sql = "SELECT *,
             (SELECT username
             FROM social_network.users 
@@ -19,7 +20,7 @@ $sql = "SELECT *,
 
 $query = mysqli_query($connect, $sql);
 
-
+//Esta query devuelve todos los campos del usuario donde sea igual al id de usuario proprocionado
 $sqlUser = "SELECT *
             FROM social_network.users
             WHERE id = '$userId'";
@@ -41,6 +42,7 @@ $otherQuery = mysqli_query($connect, $sqlUser);
     <div class="container-fluid">
         <a class="navbar-brand text-dark" href="../home/home.php"><b>Twitter Clone</b></a>
         <a class="nav-link text-dark me-3" href="../home/home.php">Home</a>
+        <a class="nav-link text-dark me-3" href="../user/board.php">Twitter Board</a>
         <a class="nav-link text-dark me-3" href="../user/myProfile.php">My Profile</a>
         <a class="nav-link text-dark" href="../functionalities/messages.php">Messages</a>
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
@@ -90,7 +92,7 @@ $otherQuery = mysqli_query($connect, $sqlUser);
         <div class="col-md-7"> 
             <div class="card mb-4">
                 <div class="card-body">
-                    <h2 class="card-title text-center">Twitter Board</h2>
+                    <h2 class="card-title text-center">My Twitter Board</h2>
                     <div class="alert alert-info">
                     <?php while ($row = mysqli_fetch_array($query)): ?>
                     <div class="border border-dark p-3 mb-3">
