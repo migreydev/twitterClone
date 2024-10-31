@@ -23,7 +23,7 @@
 
             <form action="./auth/login.php" method="POST">
                 <div class="form-outline mb-4">
-                    <input type="email" id="email" name="email" class="form-control" required />
+                    <input type="text" id="email" name="email" class="form-control" required />
                     <label class="form-label" for="email">Email</label>
                 </div>
                 <div class="form-outline mb-4">
